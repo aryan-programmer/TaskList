@@ -24,9 +24,7 @@ public class AppDialog extends DialogFragment {
 	@Override public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		Activity activity = getActivity();
-		if(activity instanceof DialogListener) {
-			dialogListener = (DialogListener) activity;
-		}
+		if(activity instanceof DialogListener) dialogListener = (DialogListener) activity;
 	}
 
 	@NonNull @Override public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -41,20 +39,14 @@ public class AppDialog extends DialogFragment {
 		if(args != null) {
 			dialogId = args.getInt(KEY_ID);
 			message  = args.getString(KEY_MESSAGE);
-			if(dialogId == 0 || message == null) {
-				throw new IllegalArgumentException(
-					"Must pass DIALOG_ID and DIALOG_MESSAGE in the bundle");
-			}
+			if(dialogId == 0 || message == null) throw new IllegalArgumentException("Must pass DIALOG_ID and DIALOG_MESSAGE in the bundle");
 			title      = args.getString(KEY_TITLE, "");
 			positiveId = args.getInt(KEY_POSITIVE_TEXT_ID);
 			negativeId = args.getInt(KEY_NEGATIVE_TEXT_ID);
 			if(positiveId == 0) positiveId = R.string.ok;
 			if(negativeId == 0) negativeId = R.string.cancel;
 			if(title.length() == 0) title = getString(R.string.app_name);
-		} else {
-			throw new IllegalArgumentException(
-				"Must pass DIALOG_ID and DIALOG_MESSAGE in the bundle");
-		}
+		} else throw new IllegalArgumentException("Must pass DIALOG_ID and DIALOG_MESSAGE in the bundle");
 
 		builder
 			.setTitle(title)
@@ -79,9 +71,7 @@ public class AppDialog extends DialogFragment {
 	}
 
 	@Override public void onCancel(@NonNull DialogInterface dialog) {
-		if(dialogListener != null) {
-			dialogListener.onCancelled(getArguments().getInt(KEY_ID));
-		}
+		if(dialogListener != null) dialogListener.onCancelled(getArguments().getInt(KEY_ID));
 	}
 
 	public enum Result {Positive, Negative}

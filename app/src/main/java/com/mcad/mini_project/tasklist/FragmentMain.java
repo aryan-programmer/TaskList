@@ -2,23 +2,21 @@ package com.mcad.mini_project.tasklist;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
+import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.mcad.mini_project.tasklist.db.AppDb;
 import com.mcad.mini_project.tasklist.db.Tasks;
 import java.security.InvalidParameterException;
 
@@ -47,48 +45,53 @@ public class FragmentMain
 		View         view         = inflater.inflate(R.layout.fragment_main, container, false);
 		RecyclerView recyclerView = view.findViewById(R.id.task_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-		if(activity instanceof TaskCursorRVAdapter.TaskClickListener) {
-			adapterClickListener = (TaskCursorRVAdapter.TaskClickListener) activity;
-		}
-		if(adapter == null) {
-			adapter = new TaskCursorRVAdapter(activity, null, this);
-		} else {
-			adapter.setListener(this);
-		}
+		if(activity instanceof TaskCursorRVAdapter.TaskClickListener) adapterClickListener = (TaskCursorRVAdapter.TaskClickListener) activity;
+		if(adapter == null) adapter = new TaskCursorRVAdapter(activity, null, this);
+		else adapter.setListener(this);
 		recyclerView.setAdapter(adapter);
 		return view;
 	}
 
 	@Override public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getLoaderManager().initLoader(LOADER_ID, null, this);
+		getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
 	}
 	// endregion Lifecycle
 
+	void restartLoader() {
+		getLoaderManager().restartLoader(LOADER_ID, null, this);
+	}
 
 	// region ...Listener interface implementations
 	@NonNull @Override public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-		Log.d(TAG, "onCreateLoader() called with: id = [" + id + "], args = [" + args + "]");
-		if(id != LOADER_ID) {
-			throw new InvalidParameterException(
-				TAG + ".onCreateLoader called with invalid loader id " + id);
+		if(id != LOADER_ID) throw new InvalidParameterException(TAG + ".onCreateLoader called with invalid loader id " + id);
+		String[] proj      = {Tasks._id, Tasks.Name, Tasks.Description, Tasks.SortOrder};
+		String   sortOrder = Tasks.SortOrder + "," + Tasks.Name + " COLLATE NOCASE";
+		return new CustomCursorLoader(requireContext(), proj, sortOrder);
+	}
+
+	static class CustomCursorLoader extends AsyncTaskLoader<Cursor> {
+		String[] proj;
+		String   sortOrder;
+
+		public CustomCursorLoader(@NonNull Context context, String[] proj, String sortOrder) {
+			super(context);
+			this.proj      = proj;
+			this.sortOrder = sortOrder;
+			onContentChanged();
 		}
-		String[] proj = {
-			Tasks._id,
-			Tasks.Name,
-			Tasks.Description,
-			Tasks.SortOrder
-		};
-		String sortOrder =
-			Tasks.SortOrder + "," +
-			Tasks.Name + " COLLATE NOCASE";
-		return new CursorLoader(
-			requireActivity(),
-			Tasks.CONTENT_URI,
-			proj,
-			null,
-			null,
-			sortOrder);
+
+		@Override public Cursor loadInBackground() {
+			return AppDb.getInstance(getContext()).queryTasks(null, proj, null, null, sortOrder);
+		}
+
+		@Override protected void onStartLoading() {
+			if(takeContentChanged()) forceLoad();
+		}
+
+		@Override protected void onStopLoading() {
+			cancelLoad();
+		}
 	}
 
 	@SuppressLint("Range") @Override
@@ -101,18 +104,15 @@ public class FragmentMain
 	}
 
 	@Override public void onTaskLongClick(@NonNull Task task) {
-		if(adapterClickListener != null)
-			adapterClickListener.onTaskLongClick(task);
+		if(adapterClickListener != null) adapterClickListener.onTaskLongClick(task);
 	}
 
 	@Override public void onTaskEditClick(@NonNull Task task) {
-		if(adapterClickListener != null)
-			adapterClickListener.onTaskEditClick(task);
+		if(adapterClickListener != null) adapterClickListener.onTaskEditClick(task);
 	}
 
 	@Override public void onTaskDeleteClick(@NonNull Task task) {
-		if(adapterClickListener != null)
-			adapterClickListener.onTaskDeleteClick(task);
+		if(adapterClickListener != null) adapterClickListener.onTaskDeleteClick(task);
 	}
 	// endregion Listener interface implementations
 }

@@ -9,7 +9,7 @@
 		<item name="colorOnPrimary">@color/colorOnPrimary</item>
 		<item name="colorOnSecondary">@color/colorOnSecondary</item>
 		<item name="android:textColorSecondary">@color/secondaryTextColor</item>
-		<item name="android:windowBackground">@color/md_teal_50</item>
+		<item name="android:windowBackground">@color/white</item>
 		<item name="cardBackgroundColor">@color/cardBgColor</item>
 		<item name="android:buttonStyle">@style/Widget.TaskList.Button</item>
 		<item name="materialButtonStyle">@style/Widget.TaskList.Button</item>
@@ -38,7 +38,7 @@
 	<color name="cardBgColor">@color/md_amber_100</color>
 	<color name="primaryTextColor">@color/md_black_1000</color>
 	<color name="secondaryTextColor">@color/md_grey_600</color>
-	<color name="colorOnPrimary">@color/md_white_1000</color>
+	<color name="colorOnPrimary">@color/md_black_1000</color>
 	<color name="colorOnSecondary">@color/md_black_1000</color>
 
 	<style name="Theme.TaskList.NoActionBar">
@@ -46,12 +46,11 @@
 		<item name="windowNoTitle">true</item>
 	</style>
 
-	<style name="Theme.TaskList.AppBarOverlay"
-	       parent="ThemeOverlay.Material3.Dark.ActionBar" />
+	<style name="Theme.TaskList.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
 
 	<style name="Theme.TaskList.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 
-	<style name="Widget.TaskList.Button" parent="Widget.AppCompat.Button">
+	<style name="Widget.TaskList.Button" parent="Widget.Material3.Button.ElevatedButton">
 		<item name="backgroundTint">@color/primaryColor</item>
 		<item name="android:textColor">@color/colorOnPrimary</item>
 	</style>
@@ -60,9 +59,16 @@
 		<item name="backgroundTint">@color/primaryColor</item>
 	</style>
 
+	<style name="Widget.TaskList.IconOnlyButton" parent="Widget.TaskList.Button">
+		<item name="iconPadding">0dp</item>
+		<item name="iconGravity">textStart</item>
+		<item name="iconTint">@color/colorOnPrimary</item>
+		<item name="iconSize">20dp</item>
+		<item name="contentPadding">0dp</item>
+	</style>
+
 	<style name="Widget.TaskList.CardView" parent="Widget.Material3.CardView.Elevated">
 		<item name="backgroundTint">@color/cardBgColor</item>
 		<item name="android:backgroundTint">@color/cardBgColor</item>
 	</style>
-
 </resources>

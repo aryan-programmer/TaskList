@@ -16,7 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.mcad.mini_project.tasklist.db.Tasks;
+import com.mcad.mini_project.tasklist.db.AppDb;
 
 public class MainActivity
 	extends AppCompatActivity
@@ -30,10 +30,8 @@ public class MainActivity
 
 	private boolean twoPane = false;
 
-	private AlertDialog aboutDialog;
-	private AlertDialog instructionsDialog;
-	private View        mainFrag;
-	private View        addEditFrag;
+	private AlertDialog aboutDialog, instructionsDialog;
+	private View mainFrag, addEditFrag;
 
 	// region ...Lifecycle
 	@Override protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +43,10 @@ public class MainActivity
 		mainFrag    = findViewById(R.id.main__fragment_main);
 		addEditFrag = findViewById(R.id.main__frag_add_edit);
 
-		twoPane =
-			getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		twoPane = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
 		FragmentManager fragmentManager = getSupportFragmentManager();
-		boolean editing =
-			fragmentManager.findFragmentById(R.id.main__frag_add_edit) != null;
+		boolean         editing         = fragmentManager.findFragmentById(R.id.main__frag_add_edit) != null;
 
 		if(twoPane) {
 			mainFrag.setVisibility(View.VISIBLE);
@@ -76,11 +72,8 @@ public class MainActivity
 	@Override public void onBackPressed() {
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		FragmentAddEdit frag            = (FragmentAddEdit) fragmentManager.findFragmentById(R.id.main__frag_add_edit);
-		if((frag == null) || frag.canClose()) {
-			super.onBackPressed();
-		} else {
-			showBackConfirmationDialog();
-		}
+		if((frag == null) || frag.canClose()) super.onBackPressed();
+		else showBackConfirmationDialog();
 	}
 
 	// region ...Menu
@@ -91,7 +84,6 @@ public class MainActivity
 
 	@Override public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-
 		if(id == R.id.menu_main__add_task) {
 			taskEditReq(null);
 			return true;
@@ -104,9 +96,8 @@ public class MainActivity
 		} else if(id == android.R.id.home) {
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			FragmentAddEdit frag            = (FragmentAddEdit) fragmentManager.findFragmentById(R.id.main__frag_add_edit);
-			if((frag == null) || frag.canClose()) {
-				return super.onOptionsItemSelected(item);
-			} else {
+			if((frag == null) || frag.canClose()) return super.onOptionsItemSelected(item);
+			else {
 				showBackConfirmationDialog();
 				return true;
 			}
@@ -120,10 +111,7 @@ public class MainActivity
 		AppDialog dialog = new AppDialog();
 		Bundle    args   = new Bundle();
 		args.putInt(AppDialog.KEY_ID, DIALOG_ID__CANCEL_EDIT);
-		args.putString(
-			AppDialog.KEY_MESSAGE,
-			getString(R.string.cancel_edit_diag__message)
-		);
+		args.putString(AppDialog.KEY_MESSAGE, getString(R.string.cancel_edit_diag__message));
 		args.putInt(AppDialog.KEY_POSITIVE_TEXT_ID, R.string.cancel_edit_diag__pos_caption);
 		args.putInt(AppDialog.KEY_NEGATIVE_TEXT_ID, R.string.cancel_edit_diag__neg_caption);
 		dialog.setArguments(args);
@@ -170,9 +158,7 @@ public class MainActivity
 	}
 
 	private void dismissAboutDialog() {
-		if(aboutDialog != null && aboutDialog.isShowing()) {
-			aboutDialog.dismiss();
-		}
+		if(aboutDialog != null && aboutDialog.isShowing()) aboutDialog.dismiss();
 	}
 	// endregion Dialogs
 
@@ -182,11 +168,7 @@ public class MainActivity
 		Bundle          fragArgs = new Bundle();
 		fragArgs.putSerializable(Task.TAG, task);
 		frag.setArguments(fragArgs);
-
-		getSupportFragmentManager()
-			.beginTransaction()
-			.replace(R.id.main__frag_add_edit, frag)
-			.commit();
+		getSupportFragmentManager().beginTransaction().replace(R.id.main__frag_add_edit, frag).commit();
 		if(!twoPane) {
 			mainFrag.setVisibility(View.GONE);
 			addEditFrag.setVisibility(View.VISIBLE);
@@ -196,17 +178,16 @@ public class MainActivity
 	private void closeAddEditFrag() {
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		Fragment        frag            = fragmentManager.findFragmentById(R.id.main__frag_add_edit);
-		if(frag != null) {
-			fragmentManager
-				.beginTransaction()
-				.remove(frag)
-				.commit();
-		}
-
+		if(frag != null) fragmentManager.beginTransaction().remove(frag).commit();
 		if(!twoPane) {
 			addEditFrag.setVisibility(View.GONE);
 			mainFrag.setVisibility(View.VISIBLE);
 		}
+	}
+
+	private void onTaskListChanged() {
+		FragmentMain frag = (FragmentMain) getSupportFragmentManager().findFragmentById(R.id.main__fragment_main);
+		if(frag != null) frag.restartLoader();
 	}
 	// endregion Helpers
 
@@ -235,6 +216,7 @@ public class MainActivity
 
 	@Override public void onFragAddEditSaveClicked() {
 		closeAddEditFrag();
+		onTaskListChanged();
 	}
 
 	@Override public void onDialogResult(AppDialog.Result result, int dialogId, Bundle args) {
@@ -242,17 +224,12 @@ public class MainActivity
 		case DIALOG_ID__DELETE:
 			if(result == AppDialog.Result.Positive) {
 				Task task = (Task) args.getSerializable(Task.class.getSimpleName());
-				getContentResolver().delete(
-					Tasks.buildUri(task.getId()),
-					null,
-					null
-				);
+				AppDb.getInstance(this).deleteTasks(task.getId(), null, null);
+				onTaskListChanged();
 			}
 			break;
 		case DIALOG_ID__CANCEL_EDIT:
-			if(result == AppDialog.Result.Positive) {
-				closeAddEditFrag();
-			}
+			if(result == AppDialog.Result.Positive) closeAddEditFrag();
 			break;
 		}
 	}

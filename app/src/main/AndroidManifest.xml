@@ -26,10 +26,6 @@
 			</intent-filter>
 		</activity>
 
-		<provider
-			android:name=".db.AppProvider"
-			android:authorities="com.aryanstein.mcad.tasktimer.provider"
-			android:exported="false" />
 	</application>
 
 </manifest>

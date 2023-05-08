@@ -16,13 +16,11 @@ class TaskCursorRVAdapter
 	extends RecyclerView.Adapter<TaskCursorRVAdapter.TaskViewHolder> {
 	private static final String TAG = "TaskCursorRVAdapter";
 
-	private Context           context;
-	private Cursor            cursor;
+	private final Context context;
+	private       Cursor  cursor;
 	private TaskClickListener listener;
 
-	public TaskCursorRVAdapter(Context context,
-	                           Cursor cursor,
-	                           TaskClickListener listener) {
+	public TaskCursorRVAdapter(Context context, Cursor cursor, TaskClickListener listener) {
 		this.context  = context;
 		this.cursor   = cursor;
 		this.listener = listener;
@@ -30,8 +28,7 @@ class TaskCursorRVAdapter
 
 	@NonNull @Override
 	public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext())
-		                          .inflate(R.layout.task_list_item, parent, false);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_item, parent, false);
 		return new TaskViewHolder(view);
 	}
 
@@ -51,10 +48,7 @@ class TaskCursorRVAdapter
 			int    colSortOrder   = cursor.getColumnIndex(Tasks.SortOrder);
 			String name           = cursor.getString(colName);
 			String description    = cursor.getString(colDescription);
-			Task task = new Task(cursor.getLong(col_id),
-			                     name,
-			                     description,
-			                     cursor.getInt(colSortOrder));
+			Task   task           = new Task(cursor.getLong(col_id), name, description, cursor.getInt(colSortOrder));
 			holder.name.setText(name);
 			holder.description.setText(description);
 			holder.edit.setVisibility(View.VISIBLE);
@@ -90,27 +84,13 @@ class TaskCursorRVAdapter
 		this.listener = listener;
 	}
 
-	/**
-	 * Swaps in a new Cursor, returning the old Cursor.
-	 * The returned old Cursor is <em>not</em> closed;
-	 *
-	 * @param cursor The new cursor
-	 * @return The previous cursor, null if there wasn't.
-	 * If the given cursor id the same instance as the old Cursor, null is returned
-	 * @see Cursor
-	 */
 	Cursor swapCursor(Cursor cursor) {
-		if(Objects.equals(cursor, this.cursor)) {
-			return null;
-		}
+		if(Objects.equals(cursor, this.cursor)) return null;
 		int    oldCount = getItemCount();
 		Cursor t        = this.cursor;
 		this.cursor = cursor;
-		if(cursor != null) {
-			notifyDataSetChanged();
-		} else {
-			notifyItemRangeRemoved(0, oldCount);
-		}
+		if(cursor != null) notifyDataSetChanged();
+		else notifyItemRangeRemoved(0, oldCount);
 		return t;
 	}
 

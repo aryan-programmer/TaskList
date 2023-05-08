@@ -1,11 +1,12 @@
 package com.mcad.mini_project.tasklist;
 
+import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import java.io.Serializable;
 
 public class Task implements Serializable {
-	public static final long serialVersionUID = 20210909L;
-	public static final String TAG = Task.class.getSimpleName();
+	public static final long   serialVersionUID = 20210909L;
+	public static final String TAG              = Task.class.getSimpleName();
 
 	private       long    _id;
 	@NonNull
@@ -40,12 +41,7 @@ public class Task implements Serializable {
 		return sortOrder;
 	}
 
-	@Override public String toString() {
-		return "Task{" +
-		       "_id=" + _id +
-		       ", name='" + name + '\'' +
-		       ", description='" + description + '\'' +
-		       ", sortOrder=" + sortOrder +
-		       '}';
+	@SuppressLint("DefaultLocale") @Override public String toString() {
+		return String.format("Task{_id=%d, name='%s', description='%s', sortOrder=%d}", _id, name, description, sortOrder);
 	}
 }
