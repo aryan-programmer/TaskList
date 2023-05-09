@@ -37,16 +37,13 @@ public class FragmentMain
 		setRetainInstance(true);
 	}
 
-	@Override public View onCreateView(
-		LayoutInflater inflater, ViewGroup container,
-		Bundle savedInstanceState
-	) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Activity     activity     = getActivity();
 		View         view         = inflater.inflate(R.layout.fragment_main, container, false);
 		RecyclerView recyclerView = view.findViewById(R.id.task_list);
 		recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 		if(activity instanceof TaskCursorRVAdapter.TaskClickListener) adapterClickListener = (TaskCursorRVAdapter.TaskClickListener) activity;
-		if(adapter == null) adapter = new TaskCursorRVAdapter(activity, null, this);
+		if(adapter == null) adapter = new TaskCursorRVAdapter(null, this);
 		else adapter.setListener(this);
 		recyclerView.setAdapter(adapter);
 		return view;

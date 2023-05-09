@@ -1,6 +1,5 @@
 package com.mcad.mini_project.tasklist;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +15,10 @@ class TaskCursorRVAdapter
 	extends RecyclerView.Adapter<TaskCursorRVAdapter.TaskViewHolder> {
 	private static final String TAG = "TaskCursorRVAdapter";
 
-	private final Context context;
-	private       Cursor  cursor;
+	private Cursor            cursor;
 	private TaskClickListener listener;
 
-	public TaskCursorRVAdapter(Context context, Cursor cursor, TaskClickListener listener) {
-		this.context  = context;
+	public TaskCursorRVAdapter(Cursor cursor, TaskClickListener listener) {
 		this.cursor   = cursor;
 		this.listener = listener;
 	}
@@ -39,9 +36,7 @@ class TaskCursorRVAdapter
 			holder.edit.setVisibility(View.GONE);
 			holder.delete.setVisibility(View.GONE);
 		} else {
-			if(!cursor.moveToPosition(i)) {
-				throw new IllegalStateException("Couldn't move cursor to position " + i);
-			}
+			if(!cursor.moveToPosition(i)) throw new IllegalStateException("Couldn't move cursor to position " + i);
 			int    col_id         = cursor.getColumnIndex(Tasks._id);
 			int    colName        = cursor.getColumnIndex(Tasks.Name);
 			int    colDescription = cursor.getColumnIndex(Tasks.Description);

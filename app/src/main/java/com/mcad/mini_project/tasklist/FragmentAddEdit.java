@@ -38,11 +38,7 @@ public class FragmentAddEdit extends Fragment {
 		if(activity instanceof SaveClickListener) saveClickListener = (SaveClickListener) activity;
 	}
 
-	@Override
-	public View onCreateView(
-		LayoutInflater inflater, ViewGroup container,
-		Bundle savedInstanceState
-	) {
+	@Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_add_edit, container, false);
 		name        = v.findViewById(R.id.add_edit__name);
 		description = v.findViewById(R.id.add_edit__description);
